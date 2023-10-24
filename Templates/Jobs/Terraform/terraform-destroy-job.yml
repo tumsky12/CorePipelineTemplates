@@ -1,13 +1,13 @@
 parameters:
 - name: name
 - name: workingDirectory
-- name: backendAzureRmContainerName
 - name: environmentServiceName
   default: 'Workload Identity Federation Connection'
 - name: backendAzureRmResourceGroupName
 - name: backendAzureRmResourceGroupLocation
   default: 'uksouth'  
 - name: backendAzureRmStorageAccountName
+- name: backendAzureRmContainerName
 - name: backendAzureRmKey
   default: 'terraform.tfstate'
 - name: dependsOn
@@ -21,15 +21,18 @@ jobs:
   dependsOn: ${{ parameters.dependsOn }}
   displayName: 'Terraform Destroy ${{ parameters.name }} Infrastructure'
   steps:
+  - checkout: self
+  - checkout: terraformModules    
   - template: ../../Steps/Terraform/terraform-install-step.yml
     parameters:
       name: ${{ parameters.name }}
   - template: ../../Steps/Terraform/terraform-check-formatting-step.yml
     parameters:
-      name: ${{ parameters.name }}
+      name: ${{ parameters.name }} 
   - template: ../../Steps/Terraform/terraform-init-step.yml
     parameters:
       name: ${{ parameters.name }}
+      workingDirectory: ${{ parameters.workingDirectory }}
       environmentServiceName: ${{ parameters.environmentServiceName }}
       backendAzureRmResourceGroupName: ${{ parameters.backendAzureRmResourceGroupName }}
       backendAzureRmResourceGroupLocation: ${{ parameters.backendAzureRmResourceGroupLocation }}
@@ -39,7 +42,7 @@ jobs:
   - template: ../../Steps/Terraform/terraform-validate-step.yml
     parameters:
       name: ${{ parameters.name }}
-      workingDirectory: ${{ parameters.workingDirectory }}
+      workingDirectory: ${{ parameters.workingDirectory }}           
   - template: ../../Steps/Terraform/terraform-destroy-plan-step.yml
     parameters:
       name: ${{ parameters.name }}
