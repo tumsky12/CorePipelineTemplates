@@ -29,6 +29,10 @@ jobs:
   - template: ../../Steps/Terraform/terraform-check-formatting-step.yml
     parameters:
       name: ${{ parameters.name }}
+  - template: ../../Steps/Terraform/terraform-validate-step.yml
+    parameters:
+      name: ${{ parameters.name }}
+      workingDirectory: ${{ parameters.workingDirectory }}      
   - template: ../../Steps/Terraform/terraform-init-step.yml
     parameters:
       name: ${{ parameters.name }}
@@ -39,10 +43,6 @@ jobs:
       backendAzureRmStorageAccountName: ${{ parameters.backendAzureRmStorageAccountName }}
       backendAzureRmContainerName: ${{ parameters.backendAzureRmContainerName }}
       backendAzureRmKey: ${{ parameters.backendAzureRmKey }}
-  - template: ../../Steps/Terraform/terraform-validate-step.yml
-    parameters:
-      name: ${{ parameters.name }}
-      workingDirectory: ${{ parameters.workingDirectory }}
   - template: ../../Steps/Terraform/terraform-plan-step.yml
     parameters:
       name: ${{ parameters.name }}
