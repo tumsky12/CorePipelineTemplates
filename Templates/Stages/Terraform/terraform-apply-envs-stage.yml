@@ -1,5 +1,6 @@
 parameters:
   - name: destroy
+    type: boolean
     default: false
   - name: environments
     type: object
@@ -20,8 +21,8 @@ stages:
       ${{ if env.dependsOn }}:
         condition: succeeded('${{ env.dependsOn }}')
       jobs: 
-      - ${{ if not(parameters.destroy) }}:      
-        - template: ../../Jobs/Terraform/terraform-apply-job.yml
+      - ${{ if parameters.destroy }}:      
+        - template: ../../Jobs/Terraform/terraform-destroy-job.yml
           parameters:
             name: ${{ env.infrastructureName }}
             workingDirectory: ${{ env.workingDirectory }}
@@ -30,7 +31,7 @@ stages:
             backendAzureRmContainerName: ${{ env.backendAzureRmContainerName }}
             planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
       - ${{ else }}:      
-        - template: ../../Jobs/Terraform/terraform-destroy-job.yml@corePipelineTemplates
+        - template: ../../Jobs/Terraform/terraform-apply-job.yml
           parameters:
             name: ${{ env.infrastructureName }}
             workingDirectory: ${{ env.workingDirectory }}
