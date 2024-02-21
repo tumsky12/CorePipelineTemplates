@@ -14,20 +14,20 @@ parameters:
       - name: backendAzureRmStorageAccountName
         default: backendAzureRmStorageAccountName
       - name: tfVarsFile
-        default: 'tfVarsFile'
+        default: tfVarsFile
   - name: infrastructureGroups
     type: object
     default:
       - name: infrastructureName
-        default: 'infrastructureName'
+        default: infrastructureName
       - name: dependsOn
         default: []
       - name: deployOn
         default: []
       - name: workingDirectory
-        default: 'workingDirectory'
+        default: workingDirectory
       - name: backendAzureRmContainerName
-        default: 'backendAzureRmContainerName'
+        default: backendAzureRmContainerName
 
 stages:
   - ${{ each env in parameters.environments}}:
@@ -39,7 +39,7 @@ stages:
       - ${{ if parameters.destroy }}:  
         - ${{ each infra in parameters.infrastructureGroups }}:
           ${{ if infra.deployOn }}:
-            condition: ${{ containsValue(infra.deployOn, env.envName)) }}
+            condition: ${{ containsValue(infra.deployOn, env.envName) }}
           - template: ../../Jobs/Terraform/terraform-destroy-job.yml
             parameters:
               name: ${{ infra.infrastructureName }}
@@ -51,7 +51,7 @@ stages:
       - ${{ else }}:      
         - ${{ each infra in parameters.infrastructureGroups }}:
           ${{ if infra.deployOn }}:
-            condition: ${{ containsValue(infra.deployOn, env.envName)) }}
+            condition: ${{ containsValue(infra.deployOn, env.envName) }}
           - template: ../../Jobs/Terraform/terraform-apply-job.yml
             parameters:
               name: ${{ infra.infrastructureName }}
