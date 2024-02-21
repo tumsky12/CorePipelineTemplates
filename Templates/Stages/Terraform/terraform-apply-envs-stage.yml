@@ -15,7 +15,6 @@ parameters:
           infrastructureName: 'infrastructureName'
           dependsOn: []
           workingDirectory: 'workingDirectory'
-          infrastructureName: 'infrastructureName'
           backendAzureRmContainerName: 'backendAzureRmContainerName'
           tfVarsFile: 'tfVarsFile'
 
