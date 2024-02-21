@@ -33,7 +33,7 @@ stages:
       jobs: 
       - ${{ if parameters.destroy }}:  
         - ${{ each infra in parameters.infrastructureGroups }}:
-          - ${{ if or(not(infra.deployOn), containsValue(infra.deployOn, env.envName)) }}:  
+          - ${{ if or(eq(infra.deployOn, []), containsValue(infra.deployOn, env.envName)) }}:  
             - template: ../../Jobs/Terraform/terraform-destroy-job.yml
               parameters:
                 name: ${{ infra.infrastructureName }}
@@ -44,7 +44,7 @@ stages:
                 planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
       - ${{ else }}:      
         - ${{ each infra in parameters.infrastructureGroups }}:
-          - ${{ if or(not(infra.deployOn), containsValue(infra.deployOn, env.envName)) }}:  
+          - ${{ if or(eq(infra.deployOn, []), containsValue(infra.deployOn, env.envName)) }}:  
             - template: ../../Jobs/Terraform/terraform-apply-job.yml
               parameters:
                 name: ${{ infra.infrastructureName }}
