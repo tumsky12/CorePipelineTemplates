@@ -59,7 +59,7 @@ stages:
         - ${{ else }}:
           - job: SkippingJob
             displayName: Skipping ${{ infra.infrastructureName }} Infra
-            steps: SkipStep
+            steps:
             - script: echo Skipping ${{ infra.infrastructureName }} Infra
 
 
