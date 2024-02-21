@@ -37,8 +37,8 @@ stages:
         condition: succeeded('${{ env.dependsOn }}')
       jobs: 
       - ${{ each infra in parameters.infrastructureGroups }}:
-        ${{ if infra.deployOn }}:
-          condition: true
+        # ${{ if infra.deployOn }}:
+        condition: ${{ containsValue(infra.deployOn, env.envName) }}
         - template: ../../Jobs/Terraform/terraform-destroy-job.yml
           parameters:
             name: ${{ infra.infrastructureName }}
