@@ -30,7 +30,7 @@ stages:
         condition: succeeded('${{ env.dependsOn }}')
       jobs: 
       - ${{ if parameters.destroy }}:  
-        - ${{ each infra in parameters.infrastructure }}:
+        - ${{ each infra in parameters.infrastructureGroups }}:
           - template: ../../Jobs/Terraform/terraform-destroy-job.yml
             parameters:
               name: ${{ infra.infrastructureName }}
@@ -40,7 +40,7 @@ stages:
               backendAzureRmContainerName: ${{ infra.backendAzureRmContainerName }}
               planCommandOptions: '-var-file="EnvironmentVariables/${{ infra.tfVarsFile }}"'
       - ${{ else }}:      
-        - ${{ each infra in parameters.infrastructure }}:
+        - ${{ each infra in parameters.infrastructureGroups }}:
           - template: ../../Jobs/Terraform/terraform-apply-job.yml
             parameters:
               name: ${{ infra.infrastructureName }}
