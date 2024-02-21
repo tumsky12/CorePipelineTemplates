@@ -18,11 +18,16 @@ parameters:
   - name: infrastructureGroups
     type: object
     default:
-      infrastructureName: 'infrastructureName'
-      dependsOn: []
-      deployOn: []
-      workingDirectory: 'workingDirectory'
-      backendAzureRmContainerName: 'backendAzureRmContainerName'
+      - name: infrastructureName
+        default: 'infrastructureName'
+      - name: dependsOn
+        default: []
+      - name: deployOn
+        default: []
+      - name: workingDirectory
+        default: 'workingDirectory'
+      - name: backendAzureRmContainerName
+        default: 'backendAzureRmContainerName'
 
 stages:
   - ${{ each env in parameters.environments}}:
@@ -33,7 +38,7 @@ stages:
       jobs: 
       - ${{ if parameters.destroy }}:  
         - ${{ each infra in parameters.infrastructureGroups }}:
-          - ${{ if or(eq(infra.deployOn, []), containsValue(infra.deployOn, env.envName)) }}:  
+          - ${{ if or(not(infra.deployOn), containsValue(infra.deployOn, env.envName)) }}:  
             - template: ../../Jobs/Terraform/terraform-destroy-job.yml
               parameters:
                 name: ${{ infra.infrastructureName }}
@@ -44,7 +49,7 @@ stages:
                 planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
       - ${{ else }}:      
         - ${{ each infra in parameters.infrastructureGroups }}:
-          - ${{ if or(eq(infra.deployOn, []), containsValue(infra.deployOn, env.envName)) }}:  
+          - ${{ if or(not(infra.deployOn), containsValue(infra.deployOn, env.envName)) }}:  
             - template: ../../Jobs/Terraform/terraform-apply-job.yml
               parameters:
                 name: ${{ infra.infrastructureName }}
