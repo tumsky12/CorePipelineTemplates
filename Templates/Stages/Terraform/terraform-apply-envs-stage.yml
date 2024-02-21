@@ -48,11 +48,17 @@ stages:
                 backendAzureRmContainerName: ${{ infra.backendAzureRmContainerName }}
                 planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
           - ${{ else }}:      
-              - template: ../../Jobs/Terraform/terraform-apply-job.yml
-                parameters:
-                  name: ${{ infra.infrastructureName }}
-                  workingDirectory: ${{ infra.workingDirectory }}
-                  backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
-                  backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
-                  backendAzureRmContainerName: ${{ infra.backendAzureRmContainerName }}
-                  planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'        
+            - template: ../../Jobs/Terraform/terraform-apply-job.yml
+              parameters:
+                name: ${{ infra.infrastructureName }}
+                workingDirectory: ${{ infra.workingDirectory }}
+                backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
+                backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
+                backendAzureRmContainerName: ${{ infra.backendAzureRmContainerName }}
+                planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
+        - ${{ else }}:
+          - job: Skipping ${{ infra.infrastructureName }} Infra
+            steps:
+            - script: echo Skipping ${{ infra.infrastructureName }} Infra
+
+
