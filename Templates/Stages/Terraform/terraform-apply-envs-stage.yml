@@ -5,10 +5,14 @@ parameters:
   - name: environments
     type: object
     default:
-      envName: 'name'
-      dependsOn: []
-      backendAzureRmResourceGroupName: 'backendAzureRmResourceGroupName'
-      backendAzureRmStorageAccountName: 'backendAzureRmStorageAccountName'
+      - name: envName
+        default: envName
+      - name: dependsOn
+        default: []
+      - name: backendAzureRmResourceGroupName
+        default: backendAzureRmResourceGroupName
+      - name: backendAzureRmStorageAccountName
+        default: backendAzureRmStorageAccountName
       - name: infrastructure
         type: object
         default:
