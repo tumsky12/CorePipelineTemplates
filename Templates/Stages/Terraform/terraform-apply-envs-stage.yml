@@ -57,7 +57,7 @@ stages:
                 backendAzureRmContainerName: ${{ infra.backendAzureRmContainerName }}
                 planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
         - ${{ else }}:
-          - job: SkippingJob
+          - job: Skipping${{ infra.infrastructureName }}
             displayName: Skipping ${{ infra.infrastructureName }} Infra
             steps:
             - script: echo Skipping ${{ infra.infrastructureName }} Infra
