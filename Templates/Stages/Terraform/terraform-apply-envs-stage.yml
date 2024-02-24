@@ -5,37 +5,58 @@ parameters:
   - name: environments
     type: object
     default:
-      envName: 'name'
-      dependsOn: []
-      infrastructureName: 'infrastructureName'
-      workingDirectory: 'workingDirectory'
-      backendAzureRmResourceGroupName: 'backendAzureRmResourceGroupName'
-      backendAzureRmStorageAccountName: 'backendAzureRmStorageAccountName'
-      backendAzureRmContainerName: 'backendAzureRmContainerName'
-      tfVarsFile: 'tfVarsFile'
+      - name: envName
+        default: envName
+      - name: dependsOn
+        default: []
+      - name: backendAzureRmResourceGroupName
+        default: backendAzureRmResourceGroupName
+      - name: backendAzureRmStorageAccountName
+        default: backendAzureRmStorageAccountName
+      - name: tfVarsFile
+        default: 'tfVarsFile'
+  - name: infrastructureGroups
+    type: object
+    default:
+      - name: infrastructureName
+        default: 'infrastructureName'
+      - name: dependsOn
+        default: []
+      - name: deployOn
+        default: []
+      - name: workingDirectory
+        default: 'workingDirectory'
+      - name: backendAzureRmContainerName
+        default: 'backendAzureRmContainerName'
 
 stages:
   - ${{ each env in parameters.environments}}:
     - stage: ${{ env.envName }}
       dependsOn: ${{ env.dependsOn }}
       ${{ if env.dependsOn }}:
-        condition: succeeded('${{ env.dependsOn }}')
+        condition: and(succeeded('${{ env.dependsOn }}'), or(eq('${{ env.envName }}', 'dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main')))
+      ${{ else }}:
+        condition: or(eq('${{ env.envName }}', 'dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
       jobs: 
-      - ${{ if parameters.destroy }}:      
-        - template: ../../Jobs/Terraform/terraform-destroy-job.yml
-          parameters:
-            name: ${{ env.infrastructureName }}
-            workingDirectory: ${{ env.workingDirectory }}
-            backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
-            backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
-            backendAzureRmContainerName: ${{ env.backendAzureRmContainerName }}
-            planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
-      - ${{ else }}:      
-        - template: ../../Jobs/Terraform/terraform-apply-job.yml
-          parameters:
-            name: ${{ env.infrastructureName }}
-            workingDirectory: ${{ env.workingDirectory }}
-            backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
-            backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
-            backendAzureRmContainerName: ${{ env.backendAzureRmContainerName }}
-            planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'            
+      - ${{ each infra in parameters.infrastructureGroups }}:
+        - ${{ if containsValue(infra.deployOn, env.envName) }}:
+          - ${{ if parameters.destroy }}:  
+            - template: ../../Jobs/Terraform/terraform-destroy-job.yml
+              parameters:
+                name: ${{ infra.infrastructureName }}
+                workingDirectory: ${{ infra.workingDirectory }}
+                backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
+                backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
+                backendAzureRmContainerName: ${{ infra.backendAzureRmContainerName }}
+                planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
+          - ${{ else }}:      
+            - template: ../../Jobs/Terraform/terraform-apply-job.yml
+              parameters:
+                name: ${{ infra.infrastructureName }}
+                workingDirectory: ${{ infra.workingDirectory }}
+                backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
+                backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
+                backendAzureRmContainerName: ${{ infra.backendAzureRmContainerName }}
+                planCommandOptions: '-var-file="EnvironmentVariables/${{ env.tfVarsFile }}"'
+
+
