@@ -34,7 +34,9 @@ stages:
     - stage: ${{ env.envName }}
       dependsOn: ${{ env.dependsOn }}
       ${{ if env.dependsOn }}:
-        condition: succeeded('${{ env.dependsOn }}')
+        condition: and(succeeded('${{ env.dependsOn }}'), or(eq(${{ env.envName }}, 'dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main')))
+      ${{ else }}:
+        condition: or(eq(${{ env.envName }}, 'dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
       jobs: 
       - ${{ each infra in parameters.infrastructureGroups }}:
         - ${{ if containsValue(infra.deployOn, env.envName) }}:
