@@ -18,7 +18,7 @@ parameters:
       - name: tfVarsFile
         default: ''
       - name: planAdditionalOptions
-        default: ''        
+        default: ''
   - name: infrastructureGroups
     type: object
     default:
@@ -43,13 +43,14 @@ stages:
         condition: and(succeeded('${{ env.dependsOn }}'), or(eq('${{ env.envName }}', 'dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main')))
       ${{ else }}:
         condition: or(eq('${{ env.envName }}', 'dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-      jobs: 
+      jobs:
       - ${{ each infra in parameters.infrastructureGroups }}:
         - ${{ if containsValue(infra.deployOn, env.envName) }}:
-          - ${{ if parameters.destroy }}:  
+          - ${{ if parameters.destroy }}:
             - template: ../../Jobs/Terraform/terraform-destroy-job.yml
               parameters:
                 name: ${{ infra.infrastructureName }}
+                dependsOn: ${{ infra.dependsOn }}
                 workingDirectory: ${{ infra.workingDirectory }}
                 backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
                 backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
@@ -62,6 +63,7 @@ stages:
             - template: ../../Jobs/Terraform/terraform-apply-job.yml
               parameters:
                 name: ${{ infra.infrastructureName }}
+                dependsOn: ${{ infra.dependsOn }}
                 workingDirectory: ${{ infra.workingDirectory }}
                 backendAzureRmResourceGroupName: ${{ env.backendAzureRmResourceGroupName }}
                 backendAzureRmStorageAccountName: ${{ env.backendAzureRmStorageAccountName }}
@@ -70,5 +72,3 @@ stages:
                   planCommandOptions: ${{ parameters.planAdditionalOptions }} ${{ infra.planAdditionalOptions }} ${{ env.planAdditionalOptions }}
                 ${{ else }}:
                   planCommandOptions: -var-file="EnvironmentVariables/${{ env.tfVarsFile }}" ${{ parameters.planAdditionalOptions }} ${{ infra.planAdditionalOptions }} ${{ env.planAdditionalOptions }}
-
-
